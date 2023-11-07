@@ -39,7 +39,7 @@ const Start = ({ navigation }) => {
                     <TextInput
                         value={name}
                         /*user interaction that uses a prop to populate the textbox based on the current state*/
-                        onChangeText={setName}
+                        onChangeText={(text) => setName(text)}
                         placeholder={'Your Name'}>
                     </TextInput>
                 </View>
