@@ -16,11 +16,11 @@ const Start = ({ navigation }) => {
     const signInUser = () => {
         signInAnonymously(auth)
             .then(result => {
-                navigation.navigate("Chat", { userID: result.user.uid, name: name, color: background });
+                navigation.navigate("Chat", { userId: result.user.uid, name: name, color: background });
                 Alert.alert("Signed in Successfully");
             })
             .catch((error) => {
-                Alert.alert("Unable to sign in, try again later");
+                Alert.alert("Unable to sign in, try again later", error);
             });
     }
 
@@ -39,7 +39,7 @@ const Start = ({ navigation }) => {
                     <TextInput
                         value={name}
                         /*user interaction that uses a prop to populate the textbox based on the current state*/
-                        onChangeText={(text) => setName(text)}
+                        onChangeText={setName}
                         placeholder={'Your Name'}>
                     </TextInput>
                 </View>
