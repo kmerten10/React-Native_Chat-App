@@ -22,8 +22,8 @@ const Chat = ({ db, route, navigation }) => {
         const unsubMessages = onSnapshot(q, (documentsSnapShot) => {
             let messages = [];
             documentsSnapShot.forEach(doc => {
-                messages.push({ id: doc.id, ...doc.data() })
-            });
+                messages.push({ id: doc.id, ...doc.data(), createdAt: new Date(doc.data().createdAt.toMillis()), });
+            })
             setMessages(messages);
         })
 
