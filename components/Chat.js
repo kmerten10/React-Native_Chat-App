@@ -1,36 +1,68 @@
 import { onSnapshot, addDoc, query, collection, orderBy } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, KeyboardAvoidingView } from 'react-native';
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 
-const Chat = ({ db, route, navigation }) => {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+const Chat = ({ db, route, navigation, isConnected }) => {
     const { userId } = route.params;
     const { name } = route.params;
     const { color } = route.params;
+
     const [messages, setMessages] = useState([]);
 
+    let unsubMessages;
+
     useEffect(() => {
         navigation.setOptions({ title: name });
-        navigation.setOptions({ backgroundColor: color });
 
     }, []);
 
     useEffect(() => {
-        navigation.setOptions({ title: name });
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+        if (isConnected === true) {
+            if (unsubMessages) unsubMessages(); // Unsubscribe any previous Firestore listener.
+            unsubMessages = null;
 
-        const unsubMessages = onSnapshot(q, (documentsSnapShot) => {
-            let messages = [];
-            documentsSnapShot.forEach(doc => {
-                messages.push({ id: doc.id, ...doc.data(), createdAt: new Date(doc.data().createdAt.toMillis()), });
-            })
-            setMessages(messages);
-        })
+            // Query Firestore for messages, ordered by their creation date.
+            const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
 
+            // Listen for real-time changes in messages collection.
+            unsubMessages = onSnapshot(q, (docs) => {
+                let newMessages = [];
+                docs.forEach((doc) => {
+                    newMessages.push({
+                        _id: doc.id,
+                        ...doc.data(),
+                        createdAt: new Date(doc.data().createdAt.toMillis()),
+                    });
+                });
+                cacheMessages(newMessages); // Cache the fetched messages.
+                setMessages(newMessages); // Update state with new messages.
+            });
+        } else loadCachedMessages();
+
+        // Cleanup function to unsubscribe from Firestore listener.
         return () => {
-            if (unsubMessages) unsubMessages();
+            if (unsubMessages) {
+                unsubMessages();
+            }
+        };
+    }, [isConnected]);
+
+    const loadCachedMessages = async () => {
+        const cachedMessages = (await AsyncStorage.getItem("messages")) || [];
+        setMessages(JSON.parse(cachedMessages));
+    };
+
+    const cacheMessages = async (messagesToCache) => {
+        try {
+            await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
+        } catch (error) {
+            console.log(error.message);
         }
-    }, []);
+    };
 
 
     const onSend = (newMessages) => {
@@ -50,16 +82,22 @@ const Chat = ({ db, route, navigation }) => {
         />
     }
 
+    const renderInputToolbar = (props) => {
+        if (isConnected) return <InputToolbar {...props} />;
+        else return null;
+    };
+
 
     return (
         <View style={[styles.container, { flex: 1, backgroundColor: color }]}>
             <GiftedChat
                 messages={messages}
                 renderBubble={renderBubble}
+                renderInputToolbar={renderInputToolbar}
                 onSend={messages => onSend(messages)}
                 user={{
                     _id: userId,
-                    name: name
+                    name
                 }}
             />
             {Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null}
