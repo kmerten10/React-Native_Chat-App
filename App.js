@@ -1,6 +1,5 @@
 import Start from './components/Start'
 import Chat from './components/Chat';
-import { getFirestore } from "firebase/firestore";
 
 
 import { NavigationContainer } from '@react-navigation/native';
