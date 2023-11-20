@@ -18,14 +18,14 @@ To build a chat app for mobile devices using React Native. The app will provide 
 This project focused on developing React Native skills to develop a chat app that allows the user to access the devices hardware. 
 
 ## Lessons Learned:
-Created layout using native UI components
-Built chat functionality using the Gifted Chat Library
-Authenticated users anonymously using Firebase
-Stored conversations using Firestore Database
-Stored conversations locallyl using asyncStorage so available offline
-Allowed users to select images from device library and take picture from device
-Stored images using Google Firebase Could Storage
-Allowed users to share current location using Gifted Chat map view
+- Created layout using native UI components
+- Built chat functionality using the Gifted Chat Library
+- Authenticated users anonymously using Firebase
+- Stored conversations using Firestore Database
+- Stored conversations locallyl using asyncStorage so available offline
+- Allowed users to select images from device library and take picture from device
+- Stored images using Google Firebase Could Storage
+- Allowed users to share current location using Gifted Chat map view
 
 ## Project Link:
 Github: https://github.com/kmerten10/React-Native_Chat-App.git
